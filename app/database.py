@@ -1,0 +1,78 @@
+# Load data from CSV seed file
+loads = [
+    {
+        "load_id": "L123",
+        "origin": "Dallas, TX",
+        "destination": "Atlanta, GA",
+        "pickup_datetime": "2025-08-27T09:00:00-05:00",
+        "delivery_datetime": "2025-08-29T17:00:00-04:00",
+        "equipment_type": "dry van",
+        "loadboard_rate": 2100,
+        "notes": "FCFS 08:00-14:00",
+        "weight": 42000,
+        "commodity_type": "consumer goods",
+        "miles": 780,
+        "dimensions": "48x40 pallets",
+        "num_of_pieces": 22
+    },
+    {
+        "load_id": "L456",
+        "origin": "Fort Worth, TX",
+        "destination": "Jacksonville, FL",
+        "pickup_datetime": "2025-08-27T08:00:00-05:00",
+        "delivery_datetime": "2025-08-29T16:00:00-04:00",
+        "equipment_type": "reefer",
+        "loadboard_rate": 2600,
+        "notes": "Appt req",
+        "weight": 38000,
+        "commodity_type": "foodstuffs",
+        "miles": 980,
+        "dimensions": None,
+        "num_of_pieces": 20
+    },
+    {
+        "load_id": "L789",
+        "origin": "Dallas, TX",
+        "destination": "Charlotte, NC",
+        "pickup_datetime": "2025-08-28T10:00:00-05:00",
+        "delivery_datetime": "2025-08-30T12:00:00-04:00",
+        "equipment_type": "dry van",
+        "loadboard_rate": 2300,
+        "notes": "No detention",
+        "weight": 41000,
+        "commodity_type": "consumer goods",
+        "miles": 1000,
+        "dimensions": None,
+        "num_of_pieces": None
+    },
+    {
+        "load_id": "L901",
+        "origin": "Phoenix, AZ",
+        "destination": "Denver, CO",
+        "pickup_datetime": "2025-08-29T07:00:00-07:00",
+        "delivery_datetime": "2025-08-31T15:00:00-06:00",
+        "equipment_type": "flatbed",
+        "loadboard_rate": 2850,
+        "notes": "Tarps required",
+        "weight": 45000,
+        "commodity_type": "steel coils",
+        "miles": 1180,
+        "dimensions": "48x102 flatbed",
+        "num_of_pieces": 8
+    },
+    {
+        "load_id": "L234",
+        "origin": "Miami, FL",
+        "destination": "Nashville, TN",
+        "pickup_datetime": "2025-08-30T12:00:00-04:00",
+        "delivery_datetime": "2025-09-01T18:00:00-05:00",
+        "equipment_type": "reefer",
+        "loadboard_rate": 2450,
+        "notes": "Temp control req",
+        "weight": 35000,
+        "commodity_type": "produce",
+        "miles": 850,
+        "dimensions": "53ft reefer",
+        "num_of_pieces": 24
+    }
+]
