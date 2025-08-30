@@ -1,5 +1,8 @@
 # Freight Broker AI
 
+API is live at - https://freight-broker-happyrobot.fly.dev/
+
+
 ## 🎯 API Endpoints
 
 ### Core Freight Broker
