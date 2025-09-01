@@ -1,0 +1,30 @@
+# flyctl launch added from .gitignore
+**/*.pdf
+**/venv
+**/.venv
+**/*.csv
+**/__pycache__
+**/.DS_Store
+
+# Environment variables
+**/.env
+**/.env.local
+**/.env.production
+
+# Database (keep main db for deployment)
+# *.db
+# *.sqlite
+**/*.db-journal
+**/*.db-wal
+**/freight_broker_backup.db
+
+# Logs
+**/*.log
+**/server.log
+
+# Fly.io deployment files (keep in repo)
+# fly.toml
+# Dockerfile
+
+# flyctl launch added from .venv/.gitignore
+.venv/**/*

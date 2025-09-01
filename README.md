@@ -1,37 +1,83 @@
-# Freight Broker AI
+# Freight Broker API - Clean Implementation
 
-API is live at - https://freight-broker-happyrobot.fly.dev/
+## 🚀 Final Implementation Summary
 
+**Project Structure:**
+```
+freight-broker/
+├── main.py              # Single file with all functionality
+├── requirements.txt     # Minimal dependencies (FastAPI, Uvicorn, Pydantic)
+├── templates/
+│   └── dashboard.html   # Visual analytics dashboard
+├── freight_broker.db    # SQLite database
+└── .venv/              # Python virtual environment
+```
 
-## 🎯 API Endpoints
+## 🔗 API Endpoints
 
-### Core Freight Broker
-- `GET /` - API status and health check
-- `GET /loads` - List available loads with filtering
-- `POST /loads/search` - Advanced load search with criteria
-- `GET /carrier/verify/{mc_number}` - Real FMCSA verification
+### 1. GET /loads (Protected)
+- **Authentication**: Requires `X-API-Key` header
+- **Purpose**: Returns all 10 available freight loads
+- **Response**: JSON with load details (origin, destination, rates, equipment type)
 
-### HappyRobot Webhooks
-- `POST /happyrobot/verify-carrier` - Carrier verification webhook
-- `POST /happyrobot/search-loads` - Load matching webhook  
-- `POST /happyrobot/negotiate-rate` - Negotiation webhook
-- `POST /happyrobot/confirm-load` - Load confirmation webhook
+### 2. POST /call-data (Protected)  
+- **Authentication**: Requires `X-API-Key` header
+- **Purpose**: Store call data in SQLite database
+- **Data Types**:
+  - `duration`: Integer (seconds)
+  - `revenue`: Integer 
+  - `sentiment`: String
+  - `outcome`: String
+  - `negotiations`: Any (null becomes 0)
 
-### Analytics Dashboard
-- `GET /dashboard` - Interactive analytics interface
-- `GET /analytics/metrics` - KPI data API
-- `GET /analytics/calls` - Call activity data
+### 3. GET /dashboard (Public)
+- **Authentication**: No API key required
+- **Purpose**: Visual analytics dashboard with charts and metrics
+- **Features**: Real-time call metrics, visual charts, activity table with negotiations column
 
-## 📊 Sample Data
-Database includes realistic freight loads:
-- **L123**: Dallas, TX → Atlanta, GA (Dry Van, $2,100, 925 miles)
-- **L456**: Fort Worth, TX → Jacksonville, FL (Reefer, $2,600, 1,200 miles)
-- **L789**: Dallas, TX → Charlotte, NC (Dry Van, $2,300, 1,050 miles)
+## 🔑 Authentication
 
-## 🔧 Technology Stack
-- **Backend**: FastAPI 2.0 with async support
-- **Database**: SQLite with SQLAlchemy ORM
-- **Frontend**: Jinja2 templates + Chart.js + Bootstrap
-- **AI Integration**: HappyRobot webhook architecture  
-- **Deployment**: Docker + Fly.io cloud platform
-- **APIs**: Real FMCSA integration with fallback system
+**API Key**: `freight-broker-key-2025-secure`
+
+**Usage Examples:**
+```bash
+# Get loads (requires API key)
+curl -H "X-API-Key: freight-broker-key-2025-secure" "http://localhost:8000/loads"
+
+# Post call data (requires API key)
+curl -X POST "http://localhost:8000/call-data" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: freight-broker-key-2025-secure" \
+  -d '{
+    "call_id": "call-001",
+    "transcript": "Carrier inquiry about loads",
+    "duration": 300,
+    "sentiment": "Positive", 
+    "outcome": "Offer accepted",
+    "revenue": 2500,
+    "negotiations": null
+  }'
+
+# View dashboard (no API key needed)
+curl "http://localhost:8000/dashboard"
+```
+
+## ✅ Key Features
+
+- **API Key Security**: Protected endpoints for loads and call data
+- **Null Safety**: `negotiations: null` automatically becomes `0`
+- **Data Type Validation**: Duration and revenue as integers, others as strings
+- **Visual Analytics**: Interactive dashboard with Chart.js
+- **Clean Codebase**: Single main.py file with all functionality
+- **SQLite Storage**: Persistent database for call data
+
+## 🚀 How to Run
+
+```bash
+cd freight-broker
+python -m uvicorn main:app --port 8000 &
+```
+
+Then access:
+- Dashboard: http://localhost:8000/dashboard
+- API docs: http://localhost:8000/docs

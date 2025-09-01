@@ -3,345 +3,706 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
+    <title>{{title}}</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .metric-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #334155;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .refresh-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .refresh-btn:hover {
+            background: #2563eb;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #e2e8f0;
+        }
+        .metric-card.primary {
+            border-left-color: #3b82f6;
+        }
+        .metric-card.success {
+            border-left-color: #10b981;
+        }
+        .metric-card.warning {
+            border-left-color: #f59e0b;
+        }
+        .metric-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            margin-bottom: 8px;
         }
         .metric-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
         }
-        .metric-label {
-            opacity: 0.9;
-            font-size: 0.9rem;
+        .metric-subtitle {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .charts-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 20px;
         }
         .chart-container {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
+            height: 300px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         }
-        .dashboard-header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 30px 0;
-            margin-bottom: 30px;
-        }
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        .status-active { background-color: #28a745; }
-        .status-warning { background-color: #ffc107; }
-        .status-danger { background-color: #dc3545; }
-        .data-table {
+        .activity-table {
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .activity-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .activity-table th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .activity-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+        .activity-table tr:hover {
+            background: #f8fafc;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+        .visual-analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f1f5f9;
+        }
+        .chart-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+        .chart-header p {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+        .chart-container-small {
+            height: 200px;
+            margin-bottom: 16px;
+        }
+        .chart-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
     </style>
 </head>
-<body style="background-color: #f8f9fa;">
-    <div class="dashboard-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1><i class="fas fa-truck"></i> Freight Broker Analytics Dashboard</h1>
-                    <p class="lead">HappyRobot AI Integration - Real-time Call Analytics</p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <span class="status-indicator status-active"></span>
-                    <span>HappyRobot AI Active</span><br>
-                    <small>Last updated: <span id="lastUpdated">{{ metrics.overview.total_calls }} calls processed</span></small>
-                </div>
-            </div>
-        </div>
-    </div>
-
+<body>
     <div class="container">
-        <!-- Key Metrics Row -->
-        <div class="row">
-            <div class="col-md-3">
-                <div class="metric-card">
-                    <div class="metric-value">{{ metrics.overview.total_calls }}</div>
-                    <div class="metric-label"><i class="fas fa-phone"></i> Total Calls</div>
-                </div>
+        <div class="header">
+            <h1>Freight Broker Dashboard</h1>
+            <button class="refresh-btn" onclick="location.reload()">↻ Refresh</button>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card primary">
+                <div class="metric-title">Total Calls</div>
+                <div class="metric-value" id="total-calls">-</div>
+                <div class="metric-subtitle">Inbound carrier calls</div>
             </div>
-            <div class="col-md-3">
-                <div class="metric-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
-                    <div class="metric-value">{{ metrics.overview.successful_bookings }}</div>
-                    <div class="metric-label"><i class="fas fa-check-circle"></i> Successful Bookings</div>
-                </div>
+            <div class="metric-card success">
+                <div class="metric-title">Successful Bookings</div>
+                <div class="metric-value" id="successful-bookings">-</div>
+                <div class="metric-subtitle">Loads assigned</div>
             </div>
-            <div class="col-md-3">
-                <div class="metric-card" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
-                    <div class="metric-value">{{ metrics.overview.success_rate }}%</div>
-                    <div class="metric-label"><i class="fas fa-chart-line"></i> Success Rate</div>
-                </div>
+            <div class="metric-card primary">
+                <div class="metric-title">Success Rate</div>
+                <div class="metric-value" id="success-rate">-</div>
+                <div class="metric-subtitle">Conversion percentage</div>
             </div>
-            <div class="col-md-3">
-                <div class="metric-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
-                    <div class="metric-value">${{ metrics.overview.total_revenue }}</div>
-                    <div class="metric-label"><i class="fas fa-dollar-sign"></i> Total Revenue</div>
-                </div>
+            <div class="metric-card success">
+                <div class="metric-title">Total Revenue</div>
+                <div class="metric-value" id="total-revenue">-</div>
+                <div class="metric-subtitle">From bookings</div>
             </div>
         </div>
 
-        <!-- Charts Row -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5><i class="fas fa-chart-pie"></i> Call Outcomes</h5>
-                    <canvas id="outcomesChart" width="400" height="300"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5><i class="fas fa-chart-bar"></i> Daily Performance</h5>
-                    <canvas id="performanceChart" width="400" height="300"></canvas>
-                </div>
+        <!-- Performance Chart -->
+        <div class="charts-section">
+            <div class="section-title">Call Performance</div>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
             </div>
         </div>
 
-        <!-- Detailed Metrics Row -->
-        <div class="row">
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <h5><i class="fas fa-smile"></i> Call Sentiment</h5>
-                    <div class="row text-center">
-                        <div class="col-4">
-                            <div class="metric-value text-success">{{ metrics.call_quality.positive_calls }}</div>
-                            <div class="metric-label">Positive</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="metric-value text-warning">{{ metrics.call_quality.neutral_calls }}</div>
-                            <div class="metric-label">Neutral</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="metric-value text-danger">{{ metrics.call_quality.negative_calls }}</div>
-                            <div class="metric-label">Negative</div>
-                        </div>
+        <!-- Visual Analytics Grid -->
+        <div class="visual-analytics-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Call Duration Analysis</h3>
+                    <p>Average engagement time</p>
+                </div>
+                <div class="chart-container-small">
+                    <canvas id="durationChart"></canvas>
+                </div>
+                <div class="chart-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="avg-duration">-</span>
+                        <span class="stat-label">Avg Duration</span>
                     </div>
-                    <hr>
-                    <p><strong>Average Sentiment:</strong> {{ metrics.call_quality.avg_sentiment }}</p>
-                    <p><strong>Avg Negotiations:</strong> {{ metrics.call_quality.avg_negotiations_per_call }}</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <h5><i class="fas fa-truck-moving"></i> Equipment Types</h5>
-                    <canvas id="equipmentChart" width="300" height="300"></canvas>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Sentiment Distribution</h3>
+                    <p>Call quality breakdown</p>
+                </div>
+                <div class="chart-container-small">
+                    <canvas id="sentimentChart"></canvas>
+                </div>
+                <div class="chart-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="positive-percent">-</span>
+                        <span class="stat-label">Positive %</span>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <h5><i class="fas fa-funnel-dollar"></i> Conversion Funnel</h5>
-                    <div class="mb-3">
-                        <div class="progress mb-2">
-                            <div class="progress-bar" role="progressbar" style="width: 100%">
-                                Total Calls: {{ metrics.conversion_funnel.total_calls }}
-                            </div>
-                        </div>
-                        <div class="progress mb-2">
-                            <div class="progress-bar bg-info" role="progressbar" style="width: 90%">
-                                Verified: {{ metrics.conversion_funnel.verified_carriers }}
-                            </div>
-                        </div>
-                        <div class="progress mb-2">
-                            <div class="progress-bar bg-warning" role="progressbar" style="width: 70%">
-                                Loads Presented: {{ metrics.conversion_funnel.loads_presented }}
-                            </div>
-                        </div>
-                        <div class="progress mb-2">
-                            <div class="progress-bar bg-danger" role="progressbar" style="width: 50%">
-                                Negotiations: {{ metrics.conversion_funnel.negotiations_started }}
-                            </div>
-                        </div>
-                        <div class="progress">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 30%">
-                                Bookings: {{ metrics.conversion_funnel.successful_bookings }}
-                            </div>
-                        </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Outcome Analysis</h3>
+                    <p>Call results breakdown</p>
+                </div>
+                <div class="chart-container-small">
+                    <canvas id="outcomeChart"></canvas>
+                </div>
+                <div class="chart-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="conversion-rate">-</span>
+                        <span class="stat-label">Conversion</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Load Performance Table -->
-        <div class="row">
-            <div class="col-12">
-                <div class="data-table">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-table"></i> Recent Call Activity</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="callActivityTable">
-                            <p class="text-muted">Loading call data...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- Recent Activity -->
+        <div class="activity-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Call ID</th>
+                        <th>Duration</th>
+                        <th>Transcript</th>
+                        <th>Negotiations</th>
+                        <th>Outcome</th>
+                        <th>Sentiment</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody id="activity-table-body">
+                    <tr>
+                        <td colspan="8" class="loading">Loading call activity...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Initialize charts
-        const metrics = {{ metrics | tojson }};
-        
-        // Outcomes Chart
-        const outcomesCtx = document.getElementById('outcomesChart').getContext('2d');
-        new Chart(outcomesCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Successful', 'Failed Verification', 'No Match', 'Negotiating'],
-                datasets: [{
-                    data: [
-                        metrics.overview.successful_bookings,
-                        metrics.overview.failed_verifications,
-                        Math.max(0, metrics.overview.total_calls - metrics.overview.successful_bookings - metrics.overview.failed_verifications - 1),
-                        1
-                    ],
-                    backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#17a2b8']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
-            }
-        });
+        let metricsData = {};
 
-        // Performance Chart
-        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-        new Chart(performanceCtx, {
-            type: 'line',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [
-                    {
+        // Initialize dashboard
+        async function initializeDashboard() {
+            try {
+                await loadMetrics();
+                await loadCallActivity();
+                createCharts();
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+            }
+        }
+
+        // Load metrics data
+        async function loadMetrics() {
+            try {
+                const response = await fetch('/dashboard/api/metrics');
+                const data = await response.json();
+                metricsData = data;
+                updateMetricCards();
+            } catch (error) {
+                console.error('Error loading metrics:', error);
+            }
+        }
+
+        // Update metric cards
+        function updateMetricCards() {
+            document.getElementById('total-calls').textContent = metricsData.total_calls || 0;
+            
+            // Calculate successful bookings from success rate
+            const totalCalls = metricsData.total_calls || 0;
+            const successRate = metricsData.success_rate || 0;
+            const successfulBookings = Math.round(totalCalls * successRate / 100);
+            
+            document.getElementById('successful-bookings').textContent = successfulBookings;
+            document.getElementById('success-rate').textContent = (metricsData.success_rate || 0) + '%';
+            document.getElementById('total-revenue').textContent = '$' + (metricsData.total_revenue || 0).toLocaleString();
+        }
+
+        // Load call activity
+        async function loadCallActivity() {
+            try {
+                const response = await fetch('/dashboard/api/call-details');
+                const data = await response.json();
+                updateCallTable(data || []);  // data is directly an array
+            } catch (error) {
+                console.error('Error loading call activity:', error);
+                document.getElementById('activity-table-body').innerHTML = 
+                    '<tr><td colspan="8" class="empty-state">Error loading call activity</td></tr>';
+            }
+        }
+
+        // Update call activity table
+        function updateCallTable(calls) {
+            const tbody = document.getElementById('activity-table-body');
+            
+            // Store calls data for charts
+            window.currentCalls = calls;
+            
+            if (calls.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No call activity to display</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = calls.slice(0, 10).map(call => {
+                const statusClass = getStatusClass(call.outcome);
+                const sentimentClass = getSentimentClass(call.sentiment);
+                const revenue = call.revenue !== null ? '$' + call.revenue.toLocaleString() : '-';
+                const negotiations = call.negotiations !== null ? call.negotiations : '-';
+                const duration = call.duration ? Math.round(call.duration / 60) + 'm' : '-';
+                const transcript = call.transcript ? 
+                    (call.transcript.length > 50 ? call.transcript.substring(0, 50) + '...' : call.transcript) : '-';
+                
+                return `
+                    <tr>
+                        <td>${formatTimestamp(call.timestamp)}</td>
+                        <td>${call.call_id}</td>
+                        <td>${duration}</td>
+                        <td>${transcript}</td>
+                        <td>${negotiations}</td>
+                        <td><span class="status-badge ${statusClass}">${call.outcome}</span></td>
+                        <td><span class="status-badge ${sentimentClass}">${call.sentiment}</span></td>
+                        <td>${revenue}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Helper functions
+        function getStatusClass(outcome) {
+            if (outcome?.includes('accepted')) return 'status-success';
+            if (outcome?.includes('failed') || outcome?.includes('Rejected')) return 'status-danger';
+            return 'status-warning';
+        }
+
+        function getSentimentClass(sentiment) {
+            if (sentiment === 'Positive') return 'status-success';
+            if (sentiment === 'Negative') return 'status-danger';
+            return 'status-warning';
+        }
+
+        function formatTimestamp(timestamp) {
+            try {
+                return new Date(timestamp).toLocaleDateString() + ' ' + 
+                       new Date(timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } catch {
+                return timestamp || 'Unknown';
+            }
+        }
+
+        // Create simplified performance chart
+        function createCharts() {
+            createPerformanceChart();
+            createDurationChart();
+            createSentimentChart();
+            createOutcomeChart();
+            updateVisualStats();
+        }
+
+        function createPerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const trends = metricsData.performance_trends || {};
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
+                    datasets: [{
                         label: 'Calls',
-                        data: metrics.performance_trends.daily_calls,
-                        borderColor: '#007bff',
-                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        data: trends.daily_calls || [0, 0, 0, 0, 0, 0, 0],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
                         fill: true
-                    },
-                    {
+                    }, {
                         label: 'Bookings',
-                        data: metrics.performance_trends.daily_bookings,
-                        borderColor: '#28a745',
-                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        data: trends.daily_bookings || [0, 0, 0, 0, 0, 0, 0],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
                         fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        }
                     }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true }
                 }
-            }
-        });
-
-        // Equipment Chart
-        const equipmentCtx = document.getElementById('equipmentChart').getContext('2d');
-        const equipmentLabels = Object.keys(metrics.load_metrics.equipment_distribution || {});
-        const equipmentData = Object.values(metrics.load_metrics.equipment_distribution || {});
-        
-        new Chart(equipmentCtx, {
-            type: 'pie',
-            data: {
-                labels: equipmentLabels,
-                datasets: [{
-                    data: equipmentData,
-                    backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
-            }
-        });
-
-        // Load call activity data
-        fetch('/dashboard/api/call-details')
-            .then(response => response.json())
-            .then(data => {
-                const tableContainer = document.getElementById('callActivityTable');
-                if (data.calls && data.calls.length > 0) {
-                    let tableHTML = `
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Call ID</th>
-                                        <th>MC Number</th>
-                                        <th>Company</th>
-                                        <th>Equipment</th>
-                                        <th>Outcome</th>
-                                        <th>Sentiment</th>
-                                        <th>Final Rate</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                    `;
-                    
-                    data.calls.forEach(call => {
-                        const statusClass = call.outcome === 'successful_booking' ? 'text-success' : 
-                                          call.outcome === 'verification_failed' ? 'text-danger' : 'text-warning';
-                        const sentimentIcon = call.sentiment === 'positive' ? '😊' : 
-                                            call.sentiment === 'negative' ? '😞' : '😐';
-                        
-                        tableHTML += `
-                            <tr>
-                                <td><small>${call.call_id.substring(0, 8)}...</small></td>
-                                <td>${call.mc_number}</td>
-                                <td>${call.company_name}</td>
-                                <td><span class="badge bg-secondary">${call.equipment_type}</span></td>
-                                <td class="${statusClass}">${call.outcome}</td>
-                                <td>${sentimentIcon} ${call.sentiment}</td>
-                                <td>${call.final_rate ? '$' + call.final_rate : 'N/A'}</td>
-                            </tr>
-                        `;
-                    });
-                    
-                    tableHTML += '</tbody></table></div>';
-                    tableContainer.innerHTML = tableHTML;
-                } else {
-                    tableContainer.innerHTML = '<p class="text-muted">No call data available yet. Make some test calls to see analytics!</p>';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading call data:', error);
-                document.getElementById('callActivityTable').innerHTML = 
-                    '<p class="text-danger">Error loading call data. Please try again later.</p>';
             });
+        }
 
-        // Auto-refresh every 30 seconds
+        function createDurationChart() {
+            const ctx = document.getElementById('durationChart').getContext('2d');
+            
+            // Create duration buckets from call data
+            const durations = getCurrentCallDurations();
+            const buckets = categorizeDurations(durations);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['0-2 min', '2-5 min', '5-10 min', '10+ min'],
+                    datasets: [{
+                        label: 'Number of Calls',
+                        data: buckets,
+                        backgroundColor: [
+                            '#ef4444',
+                            '#f59e0b', 
+                            '#10b981',
+                            '#3b82f6'
+                        ],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createSentimentChart() {
+            const ctx = document.getElementById('sentimentChart').getContext('2d');
+            
+            const sentimentData = getCurrentSentimentData();
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Positive', 'Neutral', 'Negative'],
+                    datasets: [{
+                        data: [
+                            sentimentData.positive,
+                            sentimentData.neutral,
+                            sentimentData.negative
+                        ],
+                        backgroundColor: [
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 10,
+                                fontSize: 11
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createOutcomeChart() {
+            const ctx = document.getElementById('outcomeChart').getContext('2d');
+            
+            const outcomeData = getCurrentOutcomeData();
+            
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Accepted', 'Rejected', 'No Loads', 'Failed'],
+                    datasets: [{
+                        data: [
+                            outcomeData.accepted,
+                            outcomeData.rejected,
+                            outcomeData.no_loads,
+                            outcomeData.failed
+                        ],
+                        backgroundColor: [
+                            '#10b981',
+                            '#f59e0b', 
+                            '#6b7280',
+                            '#ef4444'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 10,
+                                fontSize: 11
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Helper functions for chart data
+        function getCurrentCallDurations() {
+            // Get duration data from current calls
+            return window.currentCalls ? window.currentCalls.map(call => call.duration || 0) : [];
+        }
+
+        function categorizeDurations(durations) {
+            const buckets = [0, 0, 0, 0]; // 0-2min, 2-5min, 5-10min, 10+min
+            durations.forEach(duration => {
+                const minutes = duration / 60;
+                if (minutes <= 2) buckets[0]++;
+                else if (minutes <= 5) buckets[1]++;
+                else if (minutes <= 10) buckets[2]++;
+                else buckets[3]++;
+            });
+            return buckets;
+        }
+
+        function getCurrentSentimentData() {
+            const calls = window.currentCalls || [];
+            const sentiments = {positive: 0, neutral: 0, negative: 0};
+            
+            calls.forEach(call => {
+                const sentiment = (call.sentiment || '').toLowerCase();
+                if (sentiment === 'positive') sentiments.positive++;
+                else if (sentiment === 'negative') sentiments.negative++;
+                else sentiments.neutral++;
+            });
+            
+            return sentiments;
+        }
+
+        function getCurrentOutcomeData() {
+            const calls = window.currentCalls || [];
+            const outcomes = {accepted: 0, rejected: 0, no_loads: 0, failed: 0};
+            
+            calls.forEach(call => {
+                const outcome = (call.outcome || '').toLowerCase();
+                if (outcome.includes('accepted')) outcomes.accepted++;
+                else if (outcome.includes('rejected')) outcomes.rejected++;
+                else if (outcome.includes('no loads')) outcomes.no_loads++;
+                else if (outcome.includes('failed')) outcomes.failed++;
+            });
+            
+            return outcomes;
+        }
+
+        function updateVisualStats() {
+            const calls = window.currentCalls || [];
+            
+            // Average duration
+            const durations = calls.map(call => call.duration || 0);
+            const avgDuration = durations.length > 0 ? 
+                Math.round(durations.reduce((a, b) => a + b, 0) / durations.length / 60) : 0;
+            document.getElementById('avg-duration').textContent = avgDuration + 'm';
+            
+            // Positive sentiment percentage
+            const sentimentData = getCurrentSentimentData();
+            const totalCalls = sentimentData.positive + sentimentData.neutral + sentimentData.negative;
+            const positivePercent = totalCalls > 0 ? 
+                Math.round(sentimentData.positive / totalCalls * 100) : 0;
+            document.getElementById('positive-percent').textContent = positivePercent + '%';
+            
+            // Conversion rate
+            const outcomeData = getCurrentOutcomeData();
+            const totalOutcomes = outcomeData.accepted + outcomeData.rejected + outcomeData.no_loads + outcomeData.failed;
+            const conversionRate = totalOutcomes > 0 ? 
+                Math.round(outcomeData.accepted / totalOutcomes * 100) : 0;
+            document.getElementById('conversion-rate').textContent = conversionRate + '%';
+        }
+
+        // Auto refresh every 30 seconds
         setInterval(() => {
-            location.reload();
+            loadMetrics();
+            loadCallActivity().then(() => {
+                // Refresh charts with new data
+                createCharts();
+            });
         }, 30000);
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
     </script>
 </body>
 </html>
