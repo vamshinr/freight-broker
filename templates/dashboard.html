@@ -335,11 +335,14 @@
         // Initialize dashboard
         async function initializeDashboard() {
             try {
+                console.log('🚀 Initializing dashboard...');
                 await loadMetrics();
                 await loadCallActivity();
+                console.log('📊 Creating charts...');
                 createCharts();
+                console.log('✅ Dashboard initialized successfully');
             } catch (error) {
-                console.error('Error initializing dashboard:', error);
+                console.error('❌ Error initializing dashboard:', error);
             }
         }
 
@@ -450,27 +453,41 @@
         }
 
         function createPerformanceChart() {
+            console.log('📈 Creating performance chart...');
             const ctx = document.getElementById('performanceChart').getContext('2d');
-            const trends = metricsData.performance_trends || {};
+            
+            // Generate meaningful data from current calls
+            const calls = window.currentCalls || [];
+            console.log('📊 Processing', calls.length, 'calls for performance chart');
+            const chartData = generatePerformanceData(calls);
+            console.log('📊 Chart data:', chartData);
             
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
+                    labels: chartData.labels,
                     datasets: [{
-                        label: 'Calls',
-                        data: trends.daily_calls || [0, 0, 0, 0, 0, 0, 0],
+                        label: 'Daily Calls',
+                        data: chartData.callCounts,
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         tension: 0.4,
                         fill: true
                     }, {
-                        label: 'Bookings',
-                        data: trends.daily_bookings || [0, 0, 0, 0, 0, 0, 0],
+                        label: 'Successful Bookings',
+                        data: chartData.successfulCalls,
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         tension: 0.4,
                         fill: true
+                    }, {
+                        label: 'Revenue ($)',
+                        data: chartData.dailyRevenue,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4,
+                        fill: false,
+                        yAxisID: 'y1'
                     }]
                 },
                 options: {
@@ -485,8 +502,25 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            position: 'left',
                             grid: {
                                 color: '#f1f5f9'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Number of Calls'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            title: {
+                                display: true,
+                                text: 'Revenue ($)'
                             }
                         },
                         x: {
@@ -497,6 +531,7 @@
                     }
                 }
             });
+            console.log('✅ Performance chart created successfully');
         }
 
         function createDurationChart() {
@@ -619,6 +654,63 @@
                     }
                 }
             });
+        }
+
+        // Helper function to generate performance data from calls
+        function generatePerformanceData(calls) {
+            // Group calls by date
+            const dailyData = {};
+            const today = new Date();
+            
+            // Initialize last 7 days
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                dailyData[dateStr] = {
+                    calls: 0,
+                    successful: 0,
+                    revenue: 0,
+                    label: i === 0 ? 'Today' : i === 1 ? 'Yesterday' : `${i} days ago`
+                };
+            }
+            
+            // Process actual calls
+            calls.forEach(call => {
+                if (call.timestamp) {
+                    const callDate = new Date(call.timestamp).toISOString().split('T')[0];
+                    if (dailyData[callDate]) {
+                        dailyData[callDate].calls++;
+                        if (call.outcome && call.outcome.toLowerCase().includes('accepted')) {
+                            dailyData[callDate].successful++;
+                        }
+                        if (call.revenue) {
+                            dailyData[callDate].revenue += call.revenue;
+                        }
+                    }
+                }
+            });
+            
+            // Convert to arrays for Chart.js
+            const labels = [];
+            const callCounts = [];
+            const successfulCalls = [];
+            const dailyRevenue = [];
+            
+            Object.keys(dailyData).sort().forEach(date => {
+                const data = dailyData[date];
+                labels.push(data.label);
+                callCounts.push(data.calls);
+                successfulCalls.push(data.successful);
+                dailyRevenue.push(data.revenue);
+            });
+            
+            return {
+                labels,
+                callCounts,
+                successfulCalls,
+                dailyRevenue
+            };
         }
 
         // Helper functions for chart data
